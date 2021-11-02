@@ -94,3 +94,35 @@ function deleteCategories()
     header("Location: categories.php ");
   }
 }
+
+function recordCount($table)
+{
+  global $connection;
+  $query = "SELECT * FROM " . $table;
+  $select_all_post = mysqli_query($connection, $query);
+
+  $result = mysqli_num_rows($select_all_post);
+  confirmQuery($result);
+  return $result;
+}
+
+function checkStatus($table, $column, $status)
+{
+  global $connection;
+
+  $query = "SELECT * FROM $table WHERE $column = '$status' ";
+  $result = mysqli_query($connection, $query);
+  confirmQuery($result);
+
+  return mysqli_num_rows($result);
+}
+function checkUserRole($table, $column, $role)
+{
+  global $connection;
+
+  $query = "SELECT * FROM $table WHERE $column = '$role' ";
+  $result = mysqli_query($connection, $query);
+  confirmQuery($result);
+
+  return mysqli_num_rows($result);
+}
