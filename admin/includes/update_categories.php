@@ -11,7 +11,7 @@
         $cat_id = $row['cat_id'];
         $cat_title = $row['cat_title'];
     ?>
-        <input id="cat_title" class="form-control" type="text" name="cat_title" value="<?php if (isset($cat_title)) {
+    <input id="cat_title" class="form-control" type="text" name="cat_title" value="<?php if (isset($cat_title)) {
                                                                                           echo $cat_title;
                                                                                         } ?>">
     <?php }
@@ -26,12 +26,18 @@
       // $the_cat_id = $_POST['cat_id'];
       $cat_id = $_GET['edit'];
 
-      $query = "UPDATE categories SET cat_title = '{$the_cat_title}' WHERE cat_id={$cat_id}";
-      $update_query = mysqli_query($connection, $query);
+      // $stmt = mysqli_prepare($connection, "UPDATE categories SET cat_title = '{$the_cat_title}' WHERE cat_id={$cat_id}");
+      $stmt = mysqli_prepare($connection, "UPDATE categories SET cat_title = ? WHERE cat_id=?");
+      mysqli_stmt_bind_param($stmt, 'si', $the_cat_title, $cat_id);
+      mysqli_stmt_execute($stmt);
+      // $update_query = mysqli_query($connection, $query);
       // header("Location: categories.php ");
-      if (!$update_query) {
+      if (!$stmt) {
         die("update query failed" . mysqli_error($connection));
       }
+      mysqli_stmt_close($stmt);
+
+      redirect('categories.php');
     }
     ?>
 
