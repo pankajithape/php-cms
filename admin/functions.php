@@ -240,7 +240,56 @@ function login_user($username, $password)
   }
 }
 
-function xx()
+function isLoggedIn()
 {
-  echo 'xxxxxxxxx';
+  // echo 'bbb';
+  if (isset($_SESSION['username'])) {
+    // return $_SESSION['user_role'];
+    return true;
+    // echo 'x1';
+  } else {
+    return false;
+    // echo 'x2';
+  }
+}
+
+function loggedInUserId()
+{
+  // echo "xxxxxx";
+  if (isLoggedIn()) {
+    $result = query("SELECT * FROM users WHERE username='" . $_SESSION['username'] . "'");
+    confirmQuery($result);
+    // echo $_SESSION['username']; 
+    $user = mysqli_fetch_array($result);
+    if (mysqli_num_rows($result) >= 1) {
+      return $user['user_id'];
+      // return 'yyyy';
+    }
+  }
+  return false;
+}
+
+function query($query)
+{
+  global $connection;
+  return mysqli_query($connection, $query);
+}
+
+function userLikedThisPost($post_id = '')
+{
+  $result = query("SELECT * FROM likes WHERE user_id=" . loggedInUserId() . " AND post_id={$post_id}");
+
+  return mysqli_num_rows($result) >= 1 ? true : false;
+  // if (mysqli_num_rows($result) >= 1) {
+  //   return true;
+  // } else {
+  //   return false;
+  // }
+}
+
+function getPostLikes($post_id)
+{
+  $result = query("SELECT * FROM likes WHERE post_id=$post_id");
+  confirmQuery($result);
+  echo mysqli_num_rows($result);
 }
