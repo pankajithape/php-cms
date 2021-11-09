@@ -112,18 +112,23 @@ function checkUserRole($table, $column, $role)
   confirmQuery($result);
   return mysqli_num_rows($result);
 }
+// function is_admin()
 function is_admin($username)
 {
   global $connection;
-  $query = "SELECT user_role from users WHERE username='$username'";
-  $result = mysqli_query($connection, $query);
-  confirmQuery($result);
-  $row = mysqli_fetch_array($result);
-  if ($row['user_role'] == 'admin') {
-    return true;
-  } else {
-    return false;
+  if (isLoggedIn()) {
+    $query = "SELECT user_role FROM users WHERE username='$username'";
+    // $query = "SELECT user_role FROM users WHERE username=". $_SESSION['user_id '] ."";
+    $result = mysqli_query($connection, $query);
+    confirmQuery($result);
+    $row = mysqli_fetch_array($result);
+    if ($row['user_role'] == 'admin') {
+      return true;
+    } else {
+      return false;
+    }
   }
+  return false;
 }
 function username_exists($username)
 {
@@ -224,6 +229,7 @@ function login_user($username, $password)
   // }
   if (password_verify($password, $db_user_password)) {
     // if (true) {
+    $_SESSION['user_id'] =  $db_user_id;
     $_SESSION['username'] =  $db_username;
     $_SESSION['user_firstname'] =  $db_user_firstname;
     $_SESSION['user_lastname'] =  $db_user_lastname;
@@ -292,4 +298,43 @@ function getPostLikes($post_id)
   $result = query("SELECT * FROM likes WHERE post_id=$post_id");
   confirmQuery($result);
   echo mysqli_num_rows($result);
+}
+
+// Functions for user specific dashboard
+
+function checkStatusForUserPublishedPosts($table, $column, $status)
+{
+  global $connection;
+  $username = $_SESSION['username'];
+  $query = "SELECT * FROM $table WHERE $column = '$status' AND post_user='$username'";
+  $result = mysqli_query($connection, $query);
+  confirmQuery($result);
+  return mysqli_num_rows($result);
+}
+function checkStatusForUserDraftPosts($table, $column, $status)
+{
+  global $connection;
+  $username = $_SESSION['username'];
+  $query = "SELECT * FROM $table WHERE $column = '$status' AND post_user='$username'";
+  $result = mysqli_query($connection, $query);
+  confirmQuery($result);
+  return mysqli_num_rows($result);
+}
+function checkStatusForUnapprovedCommentsCount()
+{
+  global $connection;
+  $username = $_SESSION['username'];
+  $query = "SELECT * FROM comments WHERE comment_status = 'unapproved' AND comment_author='$username' ";
+  $result = mysqli_query($connection, $query);
+  confirmQuery($result);
+  return mysqli_num_rows($result);
+}
+function checkStatusForApprovedCommentsCount()
+{
+  global $connection;
+  $username = $_SESSION['username'];
+  $query = "SELECT * FROM posts INNER JOIN comments ON posts.post_id=comments.comment_post_id WHERE  comment_author='$username' AND comment_status='approved'";
+  $select_all_comments = mysqli_query($connection, $query);
+  $comments_counts = mysqli_num_rows($select_all_comments);
+  return $comments_counts;
 }
